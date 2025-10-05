@@ -14,19 +14,80 @@
     </header>
 
     <main>
+      <div class="mb-4 flex gap-2 items-center">
+        <input id="searchInput" type="search" placeholder="Search posts (use * as wildcard)" class="flex-1 p-2 border rounded" />
+        <button id="searchBtn" class="px-3 py-2 bg-blue-600 text-white rounded">Search</button>
+        <button id="clearBtn" class="px-3 py-2 border rounded">Clear</button>
+      </div>
       <% if (posts && posts.length) { %>
-        <div class="space-y-4">
+        <div id="postsList" class="space-y-4">
           <% posts.forEach(post => { %>
-            <article class="bg-white p-4 rounded shadow-sm">
+            <article class="post-item bg-white p-4 rounded shadow-sm" data-title="<%= (post.title || '').replace(/"/g, '&quot;') %>" data-excerpt="<%= (post.excerpt || '').replace(/"/g, '&quot;') %>">
               <h2 class="text-xl font-semibold"><a class="text-blue-600 hover:underline" href="/post/<%= post.id %>"><%= post.title %></a></h2>
               <p class="text-gray-700 mt-2"><%= post.excerpt %></p>
               <div class="text-sm text-gray-500 mt-3">ID: <%= post.id %></div>
             </article>
           <% }) %>
         </div>
+        <p id="noResults" class="hidden text-center text-gray-600 mt-6">No posts match your search.</p>
       <% } else { %>
         <p>No posts yet.</p>
       <% } %>
+      <script>
+        (function(){
+          const input = document.getElementById('searchInput');
+          const btn = document.getElementById('searchBtn');
+          const clearBtn = document.getElementById('clearBtn');
+          const posts = Array.from(document.querySelectorAll('.post-item'));
+          const noResults = document.getElementById('noResults');
+
+          function escapeRegex(s){
+            return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          }
+
+          function makeMatcher(pattern){
+            if (!pattern) return null;
+            pattern = pattern.trim();
+            // If contains * treat as wildcard pattern, otherwise do simple substring
+            if (pattern.indexOf('*') !== -1) {
+              // escape other regex chars, then convert * -> .*
+              const parts = pattern.split('*').map(escapeRegex);
+              const regex = parts.join('.*');
+              return new RegExp(regex, 'i');
+            }
+            // substring (case-insensitive)
+            return pattern.toLowerCase();
+          }
+
+          function applyFilter(){
+            const raw = input.value || '';
+            const matcher = makeMatcher(raw);
+            let visible = 0;
+            posts.forEach(el => {
+              const title = (el.dataset.title || '').toString();
+              const excerpt = (el.dataset.excerpt || '').toString();
+              let matched = false;
+              if (!matcher) matched = true;
+              else if (matcher instanceof RegExp) {
+                matched = matcher.test(title) || matcher.test(excerpt);
+              } else {
+                const q = matcher; // lower-case substring
+                matched = title.toLowerCase().indexOf(q) !== -1 || excerpt.toLowerCase().indexOf(q) !== -1;
+              }
+              el.style.display = matched ? '' : 'none';
+              if (matched) visible++;
+            });
+            noResults.classList.toggle('hidden', visible !== 0);
+          }
+
+          btn.addEventListener('click', applyFilter);
+          clearBtn.addEventListener('click', function(){ input.value = ''; applyFilter(); input.focus(); });
+          input.addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); applyFilter(); } });
+          // optional: live filter as user types (debounced)
+          let t;
+          input.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(applyFilter, 200); });
+        })();
+      </script>
     </main>
   </div>
 </body>
