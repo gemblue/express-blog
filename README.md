@@ -27,6 +27,18 @@ Usage
 
    npm start
 
+Database migration
+
+If you need to add the missing `excerpt` column to the `posts` table, run:
+
+1. Copy `.env.example` to `.env` and edit DB credentials if necessary.
+
+2. Run the migration script:
+
+   npm run migrate
+
+The migration will add the `excerpt` column if it doesn't exist and populate it from `content` for existing rows.
+
 4. Open http://localhost:3000 (or PORT from your `.env`).
 
 Notes

@@ -4,7 +4,8 @@
   "description": "Simple Express + EJS + MySQL blog example with dotenv and Tailwind CDN",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "migrate": "node scripts/migrate.js"
   },
   "author": "",
   "license": "MIT",
