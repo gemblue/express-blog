@@ -2,6 +2,8 @@
 
 Minimal example of an Express.js app using EJS templates and MySQL. Uses dotenv for configuration and Tailwind CDN for styling.
 
+[![Project screenshot](https://image.web.id/images/Screenshot-2025-10-05-at-13.48.26.png)](https://image.web.id/images/Screenshot-2025-10-05-at-13.48.26.png)
+
 Requirements
 - Node.js 18+ (or compatible)
 - MySQL database with a table `posts` in database `express_blog`
